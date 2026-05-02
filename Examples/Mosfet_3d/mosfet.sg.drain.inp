@@ -1,0 +1,163 @@
+
+Import State File mosfet.nlp.exo
+
+start output parameters
+      Output State File mosfet.sg.drain.exo
+      output tabulated parameter currents to currents.drain.dat
+      Output Nodal Variables in channel for "Doping,Acceptor Concentration,Donor Concentration"
+      Output cell average Variables in channel for scalar "Doping,Acceptor Concentration,Donor Concentration"
+      Output Nodal Variables in substrateregion for "Doping,Acceptor Concentration,Donor Concentration"
+      Output cell average Variables in substrateregion for scalar "Doping,Acceptor Concentration,Donor Concentration"
+      Output Nodal Variables in buriedoxide for "Doping,Acceptor Concentration,Donor Concentration"
+      Output cell average Variables in buriedoxide for scalar "Doping,Acceptor Concentration,Donor Concentration"
+end output parameters
+
+concentration scaling=1e15
+lattice temperature=300
+
+start Physics Block channelSemiconductor
+      geometry block is channel
+      standard discretization type is drift diffusion cvfem
+      material model is channelSiliconParameter
+end Physics Block Semiconductor
+
+start Physics Block substrateSemiconductor
+      geometry block is substrateregion
+      geometry block is buriedoxide
+      standard discretization type is drift diffusion cvfem
+      material model is substrateSiliconParameter
+end Physics Block Semiconductor
+
+start Physics Block insulator
+      geometry block is gateoxide
+      standard discretization type is laplace cvfem
+      material model is SiO2Parameter
+end Physics Block insulator
+
+start Material Block channelSiliconParameter
+      material name is Silicon
+      relative permittivity = 11.9
+      start uniform doping named Function1
+          Concentration = 1e16
+          spatial range is -1 to 1 in x
+          spatial range is -1 to 1 in y
+          spatial range is 0.0 to 1.0 in z
+
+          Type is acceptor
+      end uniform doping named Function1
+     start mgauss doping named Function2 
+          Type is donor
+	  spatial range is -0.900 to -0.175 in x
+	  spatial range is -0.20 to  0.100 in y
+        spatial range is 0.0 to 1.0 in z
+
+          Concentration range is 1.0e0 to 1.0e17 
+          gradient width = 0.001 in x
+          gradient width = 0.001 in y
+     end mgauss doping named Function2
+     start mgauss doping named Function3
+          Type is donor
+	  spatial range is  0.175 to  0.900 in x
+	  spatial range is -0.20 to  0.100 in y
+        spatial range is 0.0 to 1.0 in z
+
+          Concentration range is 1.0e0 to 1.0e17 
+          gradient width = 0.001 in x
+          gradient width = 0.001 in y
+      end mgauss doping named Function3    
+       start MOSFET mobility
+      	    start electron bulk mobility klaassen
+		enable high field mobility
+      	    end electron bulk mobility Klaassen
+	    start electron channel mobility shirahata
+	    	  boundary layer thickness = 0.02
+		  spatial range is -0.175 to 0.175 in x
+		  spatial range is -0.050 to 0.000 in y
+              spatial range is 0.0 to 1.0 in z
+
+		  theta = 0.05
+	    end electron channel mobility shirahata
+
+      	    start hole bulk mobility klaassen
+		enable high field mobility
+      	    end hole bulk mobility klaassen
+	    start hole channel mobility shirahata
+	    	  boundary layer thickness = 0.02
+		  spatial range is -0.175 to 0.175 in x
+		  spatial range is -0.050 to 0.000 in y
+              spatial range is 0.0 to 1.0 in z
+
+		  theta = 0.05
+	    end hole channel mobility shirahata
+      end MOSFET mobility
+end Material Block siliconParameter
+
+start Material Block substrateSiliconParameter
+      material name is Silicon
+      relative permittivity = 11.9
+      start uniform doping named Function1
+          Concentration = 1e16
+          spatial range is -1 to 1 in x
+          spatial range is -1 to 1 in y
+          spatial range is 0.0 to 1.0 in z
+
+          Type is acceptor
+      end uniform doping named Function1
+
+      start Philips-Thomas Mobility
+          start electron parameters 
+	     high field component is on
+	     use klaassen parameters
+	  end electron parameters
+          start hole parameters 
+	     high field component is on
+	     use klaassen parameters
+	  end hole parameters
+      end Philips-Thomas Mobility
+end Material Block siliconParameter
+
+start Material Block SiO2Parameter
+      material name is SiO2
+      relative permittivity = 3.9
+end Material Block
+
+initial conditions for ELECTRIC_POTENTIAL in gateoxide is  exodus file
+initial conditions for ELECTRIC_POTENTIAL in channel is exodus file
+initial conditions for ELECTRIC_POTENTIAL in buriedoxide is exodus file
+initial conditions for ELECTRIC_POTENTIAL in substrateregion is exodus file
+
+initial conditions for ELECTRON_DENSITY in channel is equilibrium density
+initial conditions for ELECTRON_DENSITY in substrateregion is equilibrium density
+initial conditions for HOLE_DENSITY in channel is equilibrium density
+initial conditions for HOLE_DENSITY in substrateregion is equilibrium density
+
+initial conditions for ELECTRON_DENSITY in buriedoxide is equilibrium density
+initial conditions for HOLE_DENSITY in buriedoxide is equilibrium density
+
+
+
+BC is ohmic for source on channel fixed at 0
+BC is ohmic for drain on channel swept from 0 to 3.3
+BC is ohmic for substrate on substrateregion fixed at 0
+BC is contact on insulator for gate on gateoxide with work function 4.5 fixed at 0
+
+# Sweep parameter controls
+start sweep options
+   initial step size = 0.1
+   minimum step size = 0.1
+   maximum step size = 0.1
+end sweep options
+
+
+tpetra is on
+start solver block
+   start tpetra block
+     problem type is steady state
+     verbosity level is high
+     maximum number nonlinear iterations = 30
+     start nonlinear solver wrms block
+       test is off
+     end nonlinear solver wrms block
+   end tpetra block
+end solver block
+
