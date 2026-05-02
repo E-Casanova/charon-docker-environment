@@ -24,7 +24,7 @@ Navigate to the folder on your computer containing your simulation files (e.g., 
 docker run -it --rm -v $(pwd):/workspace -w /workspace drplant1/charon:latest bash
 ```
 
-## 🧰 Using the Mesh Converter
+## 3. Using the Mesh Converter
 
 Once inside the running container, you can convert your meshes using the included Python utility:
 
@@ -32,6 +32,6 @@ Once inside the running container, you can convert your meshes using the include
 python3 convert.py input_mesh.msh output_mesh.exo
 ```
 
-## ⚠️ Compatibility Note
+## Compatibility Note
 
 This image was compiled for **x86_64 (Intel/AMD)** architectures.
