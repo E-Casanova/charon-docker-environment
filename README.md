@@ -21,15 +21,31 @@ docker pull drplant1/charon:latest
 Navigate to the folder on your computer containing your simulation files (e.g., your `.py` or `.input` files) and run:
 
 ```bash
-docker run -it --rm -v $(pwd):/workspace -w /workspace drplant1/charon:latest bash
+docker run -it --rm -v "${PWD}:/home/root/work-folder" -w /home/root/work-folder drplant1/charon:latest
 ```
 
-## 3. Using the Mesh Converter
+### 3. Creating a mesh
 
-Once inside the running container, you can convert your meshes using the included Python utility:
+To mesh a .geo file simply run 
+```bash
+gmsh -3 input.geo -o output.msh
+```
+
+
+### 4. Using the Mesh Converter
+
+You can convert your meshes using the included Python utility:
 
 ```bash
-python3 convert.py input_mesh.msh output_mesh.exo
+python3 /app/convert.py input_mesh.msh output_mesh.exo
+```
+
+### 5. Running charon
+
+The charon interperter (chirp) processes the easy to read .inp files and generates the required xml files to run the simulation.
+
+```bash
+chirp -i example.inp --run
 ```
 
 ## Compatibility Note
